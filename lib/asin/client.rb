@@ -174,7 +174,12 @@ module ASIN
     def search_keywords(*keywords)
       params = keywords.last.is_a?(Hash) ? keywords.pop : {:SearchIndex => :Books, :ResponseGroup => :Medium}
       response = call(params.merge(:Operation => :ItemSearch, :Keywords => keywords.join(' ')))
-      arrayfy(response['ItemSearchResponse']['Items']['Item']).map {|item| handle_item(item)}
+      
+      # add page and result counts
+      total_pages = response['ItemSearchResponse']['Items']['TotalPages'] 
+      total_results = response['ItemSearchResponse']['Items']['TotalResults']
+      
+      [arrayfy(response['ItemSearchResponse']['Items']['Item']).map {|item| handle_item(item)}, total_pages, total_results]
     end
 
     # Performs an +ItemSearch+ REST call against the Amazon API.
